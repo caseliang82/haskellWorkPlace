@@ -1,3 +1,4 @@
+--tutor TUDOR FERARIV TFERARIV@YAHOO
 -- Informatics 1 - Functional Programming
 -- Tutorial 1
 --
@@ -73,7 +74,7 @@ multDigits :: String -> Int
 multDigits str = product [digitToInt x | x <- str, isDigit x]
 
 countDigits :: String -> Int
-countDigits str = length [digitToInt x | x <- str, isDigit x]
+countDigits str = length [42 | x <- str, isDigit x]
 
 prop_multDigits :: String -> Bool
 prop_multDigits xs = multDigits xs <= 9 ^ countDigits xs
@@ -83,6 +84,7 @@ prop_multDigits xs = multDigits xs <= 9 ^ countDigits xs
 
 -- List-comprehension version
 capitalise :: String -> String
+capitalise [] = []
 capitalise (x:xs) = toUpper x : [toLower y | y <- xs]
 
 
@@ -117,6 +119,7 @@ signs xs = [sign x | x <- xs, x >= -9 && x <= 9]
 -- 9. score
 {-
 if it's a letter (isLetter)
+--elem function
 -}
 isVowel :: Char -> Bool
 isVowel x
@@ -142,14 +145,14 @@ prop_totalScore_positive xs = totalScore xs >= 1
 
 -- Optional Material
 
--- 8. crosswordFind
+-- 10. crosswordFind
 
 -- List-comprehension version
 crosswordFind :: Char -> Int -> Int -> [String] -> [String]
 crosswordFind letter pos len words = undefined
 
 
--- 9. search
+-- 11. search
 
 -- List-comprehension version
 
@@ -161,7 +164,7 @@ prop_search :: String -> Char -> Bool
 prop_search str goal = undefined
 
 
--- 10. contains
+-- 12. contains
 
 contains :: String -> String -> Bool
 contains str substr = undefined
