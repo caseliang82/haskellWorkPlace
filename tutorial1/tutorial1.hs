@@ -149,26 +149,40 @@ prop_totalScore_positive xs = totalScore xs >= 1
 
 -- List-comprehension version
 crosswordFind :: Char -> Int -> Int -> [String] -> [String]
-crosswordFind letter pos len words = undefined
-
+crosswordFind letter pos len ws = [w | w <- ws, length w == len, (w!!pos) == letter]
 
 -- 11. search
 
 -- List-comprehension version
-
+{-Write a function search :: String -> Char -> [Int] that returns the positions of 
+all occurrences of the second argument in the first. For example
+    search "Bookshop" ’o’  ==  [1,2,6]
+    search "senselessness’s" ’s’  ==  [0,3,7,8,11,12,14]
+Your definition should use a list comprehension. You may use the function 
+zip :: [a] -> [b] -> [(a,b)], the function length :: [a] -> Int, and the term forms
+ [m..n] and [m..].
+  search "Bookshop" 'o'  ==  [1,2,6]
+  search "senselessness’s" 's'  ==  [0,3,7,8,11,12,14]
+    -}
 search :: String -> Char -> [Int]
-search str goal = undefined
+search str goal = [y | (x,y) <- (zip str [0..]), x == goal ]
 
 -- Depending on the property you want to test, you might want to change the type signature
 prop_search :: String -> Char -> Bool
-prop_search str goal = undefined
+prop_search str goal = length (search str goal) <= length str
 
 
 -- 12. contains
-
+{-contains "United Kingdom" "King"  ==  True
+    contains "Appleton" "peon"  ==  False
+    contains "" ""  ==  True-}
 contains :: String -> String -> Bool
-contains str substr = undefined
+contains str substr
+ |str == [] && substr == [] = True
+ |str == [] = False
+ |isPrefixOf substr str = True
+ |otherwise = contains (tail str) substr
 
 -- Depending on the property you want to test, you might want to change the type signature
 prop_contains :: String -> String -> Bool
-prop_contains str1 str2 = undefined
+prop_contains str1 str2 = (contains str1 str2 && length str1 >= length str2) || (contains str1 str2 == False)

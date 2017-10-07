@@ -1,4 +1,4 @@
-waa
+
 doubleMe x = x + x + x
 doubleUs x y = doubleMe x + doubleMe y
 boomBangs xs = [ if x < 10 then "BOOM!" else "BANG!" | x <- xs, odd x]
@@ -36,3 +36,18 @@ third (_, _, z) = z
 head' :: [a] -> a
 head' [] = error "can't call head on an empty list, dummy!"
 head' (x:_) = x
+
+product' :: [Int] -> Int
+product' [] = 1
+product' (x:xs) = x * product xs
+
+f :: [a] -> [a]
+f [] = []
+f [x] = [x]
+f (x:y:ys) = x : (f ys) 
+
+(~~) :: Ord a => a -> a -> String
+a ~~ b
+ |a < b = "a < b"
+ |a == b = "a == b"
+ |otherwise = "a >= b"
