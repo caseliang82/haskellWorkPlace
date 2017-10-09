@@ -13,6 +13,7 @@ import Data.Char
 import Data.List
 import Test.QuickCheck
 
+
 import Data.Function
 import Data.Maybe
 
@@ -179,34 +180,52 @@ decipherStr k xs = [decipher k x| x <- normalize xs]
 -- 11.
 
 contains :: String -> String -> Bool
-contains = undefined
+contains str substr
+ |str == [] && substr == [] = True
+ |str == [] = False
+ |isPrefixOf substr str = True
+ |otherwise = contains (tail str) substr
 
 
 -- 12.
 
 candidates :: String -> [(Int, String)]
-candidates = undefined
+candidates xs = canhelp xs 1
 
-
+canhelp :: String -> Int -> [(Int, String)]
+canhelp xs i
+ |xs == decipherStr i xs = []
+ |contains (decipherStr i xs) "AND" = (i, decipherStr i xs) : canhelp xs (i + 1)
+ |contains (decipherStr i xs) "THE" = (i, decipherStr i xs) : canhelp xs (i + 1)
+ |otherwise = canhelp xs (i + 1)
 -- 13.
 
 splitEachFive :: String -> [String]
-splitEachFive = undefined
+splitEachFive xs
+ |length xs == 0 = []
+ |length xs >= 5 = (take 5 xs) : splitEachFive (drop 5 xs)
+ |otherwise = [take 5 xs ++ (replicate (5 - (length xs)) 'X')]
 
 
 -- 14.
 
 prop_transpose :: String -> Bool
-prop_transpose = undefined
+prop_transpose xs = splitEachFive xs == transpose(transpose (splitEachFive xs))
 
 
 -- 15.
 
 encrypt :: Int -> String -> String
-encrypt = undefined
+encrypt k xs = concat(transpose(splitEachFive(encipherStr k xs)))
 
 
 -- 16.
 
 decrypt :: Int -> String -> String
-decrypt = undefined
+decrypt k xs = decipherStr k (concat(transpose(splitEachN ((length xs) `div` 5) xs)))
+
+splitEachN :: Int -> String -> [String]
+splitEachN n xs
+ |length xs == 0 = []
+ |length xs >= n = (take n xs) : splitEachN n (drop n xs)
+ |otherwise = [take n xs ++ (replicate (n - (length xs)) 'X')]
