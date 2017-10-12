@@ -116,6 +116,8 @@ lookUp k ps
  |otherwise = head tlist
  where tlist = [e | (d, e) <- ps, k == d]
 
+ --lookUp ch xs = head ([u | (x,y) <- xs, x ==ch] ++ cd])
+
 lookUpRec :: Char -> [(Char, Char)] -> Char
 lookUpRec k [] = k
 lookUpRec k ((d,e):ps)
@@ -186,6 +188,12 @@ contains str substr
  |isPrefixOf substr str = True
  |otherwise = contains (tail str) substr
 
+{-
+contains _ [] = True
+contains [] _ = False
+contains str substr =
+	isPrefixOf substr str || contains (tail str) substr
+-}
 
 -- 12.
 
