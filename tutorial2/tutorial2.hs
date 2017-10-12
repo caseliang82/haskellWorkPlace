@@ -192,7 +192,7 @@ contains str substr
 contains _ [] = True
 contains [] _ = False
 contains str substr =
-	isPrefixOf substr str || contains (tail str) substr
+	isPrefixOf substr str || contains (tail str) substr 
 -}
 
 -- 12.
