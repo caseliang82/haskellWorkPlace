@@ -134,7 +134,7 @@ rmCharsRec [] li = li
 rmCharsRec (x:xs) li = rmCharsRec xs (rmChar x li)
 
 rmCharsFold :: String -> String -> String
-rmCharsFold rmli li = foldr (rmChar) li rmli
+rmCharsFold li rmli= foldr (rmChar) li rmli
 
 prop_rmChars :: String -> String -> Bool
 prop_rmChars chars str = rmCharsRec chars str == rmCharsFold chars str
