@@ -7,6 +7,7 @@ module Tutorial3 where
 
 import Data.Char
 import Test.QuickCheck
+import Data.List
 
 
 
@@ -147,21 +148,43 @@ type Matrix = [[Int]]
 -- 5
 -- a.
 uniform :: [Int] -> Bool
-uniform = undefined
+uniform [] = False
+uniform (x:xs) = all (==x) xs
 
 -- b.
 valid :: Matrix -> Bool
-valid = undefined
+valid [] = False
+valid (x:xs) = (all (== (length x)) (map length (x:xs))) && (length x > 0)
 
 -- 6.
+--zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+--zipWith f a b = [uncurry f t| t <- (zip a b)]
 
+--zipWith' :: (a -> b -> c) -> [a] -> [b] -> [c]
+--zipWith' f a b = map (uncurry f) (zip a b) 
 -- 7.
 plusM :: Matrix -> Matrix -> Matrix
-plusM = undefined
+plusM ma mb
+ |(valid ma && valid mb) && (length ma == length mb) && (length (head ma) == length (head mb)) 
+ = zipWith plusRow ma mb
+ |otherwise = error("shit, invalid matrixes ain't cool")
 
+plusRow :: (Num a) => [a] -> [a] -> [a]
+plusRow = zipWith (+)
 -- 8.
+{-Define a function timesM to perform matrix multiplication. 
+ Return an error if the input is not suitable. 
+ It might be helpful to define a helper function dot for the dot product of two vectors (lists). 
+ 	The function should then take the dot product of the single row with every column of the matrix, and return the values as a list. 
+ To make the columns of a matrix readily available you can use the function transpose 
+ 	(you should remember this function from Tutorial 2).
+-}
 timesM :: Matrix -> Matrix -> Matrix
-timesM = undefined
+timesM ma mb
+ |(valid ma && valid mb) && (length (head ma) == length(transpose mb)) = zipWith dot ma (transpose mb)
+ |otherwise = error("shit, invalid matrixes ain't cool")
 
+dot :: (Num a) => [a] -> [a] -> [a]
+dot = zipWith (*)
 -- Optional material
 -- 9.
