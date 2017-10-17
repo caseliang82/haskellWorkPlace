@@ -8,6 +8,7 @@ module Tutorial3 where
 import Data.Char
 import Test.QuickCheck
 import Data.List
+import Data.Matrix
 
 
 
@@ -188,3 +189,19 @@ dot :: (Num a) => [a] -> [a] -> [a]
 dot = zipWith (*)
 -- Optional material
 -- 9.
+{-
+(a) The entries of a matrix should be changed to Doubles or (even better) Rationals to allow proper division.
+(b) You will need a function to find the determinant of a matrix. This will tell you if it has an inverse.
+(c) You will need a function to do the actual inversion.
+-}
+inverse :: (Fractional a, Eq a) => Matrix a -> Either String (Matrix a)
+inverse m
+    | ncols m /= nrows m
+        = Left
+            $ "Inverting non-square matrix with dimensions "
+                ++ show (sizeStr (ncols m) (nrows m))
+    | otherwise =
+        let
+            adjoinedWId = m <|> identity (nrows m)
+            rref'd = rref adjoinedWId
+        in rref'd >>= return . submatrix 1 (nrows m) (ncols m + 1) (ncols m * 2)
