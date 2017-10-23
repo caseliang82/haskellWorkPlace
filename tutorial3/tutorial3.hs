@@ -136,7 +136,7 @@ rmCharsRec [] li = li
 rmCharsRec (x:xs) li = rmCharsRec xs (rmChar x li)
 
 rmCharsFold :: String -> String -> String
-rmCharsFold li rmli= foldr (rmChar) li rmli
+rmCharsFold li rmCh= foldr (rmChar) li rmCh
 
 prop_rmChars :: String -> String -> Bool
 prop_rmChars chars str = rmCharsRec chars str == rmCharsFold chars str
@@ -156,7 +156,6 @@ uniform (x:xs) = all (==x) xs
 valid :: Matrix -> Bool
 valid [] = False
 valid (x:xs) = (all (== (length x)) (map length (x:xs))) && (length x > 0)
-
 -- 6.
 --zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 --zipWith f a b = [uncurry f t| t <- (zip a b)]
