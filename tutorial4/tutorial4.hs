@@ -122,7 +122,7 @@ split s xs
  |otherwise = takeUntil s xs : split s (dropUntil s xs)
 
 reconstruct :: String -> [String] -> String
-reconstruct = undefined
+reconstruct s xs = drop (length s) (concat [s ++ x | x <- xs])
 
 prop_split :: Char -> String -> String -> Bool
 prop_split c sep str = reconstruct sep' (split sep' str) `sameString` str
