@@ -18,7 +18,7 @@ type URL = String
 
 -- </type decls>
 -- <sample data>
-{-}
+
 testURL     = "http://www.inf.ed.ac.uk/teaching/courses/inf1/fp/testpage.html"
 
 testHTML :: String
@@ -56,16 +56,16 @@ emailsFromURL url =
   do html <- getURL url
      let emails = (emailsFromHTML html)
      putStr (ppAddrBook emails)
-
+{-}
 emailsByNameFromURL :: URL -> Name -> IO ()
 emailsByNameFromURL url name =
   do html <- getURL url
      let emails = (emailsByNameFromHTML html name)
      putStr (ppAddrBook emails)
--}
+
 -- </system interaction>
 -- <exercises>
-
+-}
 -- 1.
 sameString :: String -> String -> Bool
 sameString a b = uniCase a == uniCase b
@@ -102,12 +102,19 @@ prop_contains str d t = contains (map toLower str) substr &&
 
 
 -- 4.
+--e.g.
+--takeUntil "cd" "abcdef"
+--    "ab"
 takeUntil :: String -> String -> String
 takeUntil sub all@(x:xs)
  |not (contains all sub) = []
  |prefix sub all = []
  |otherwise = x : takeUntil sub xs
 
+
+--e.g.
+-- dropUntil "cd" "abcdef"
+--    "ef"
 dropUntil :: String -> String -> String
 dropUntil sub all@(x:xs)
  |not (contains all sub) = []
@@ -128,10 +135,10 @@ prop_split :: Char -> String -> String -> Bool
 prop_split c sep str = reconstruct sep' (split sep' str) `sameString` str
   where sep' = c : sep
 
-{-
+
 -- 6.
 linksFromHTML :: HTML -> [Link]
-linksFromHTML = undefined
+linksFromHTML a = tail (split "<a href=\"" a)
 
 testLinksFromHTML :: Bool
 testLinksFromHTML  =  linksFromHTML testHTML == testLinks
@@ -139,17 +146,21 @@ testLinksFromHTML  =  linksFromHTML testHTML == testLinks
 
 -- 7.
 takeEmails :: [Link] -> [Link]
-takeEmails = undefined
+takeEmails ls = [l | l <- ls, contains l "@"]
 
 
 -- 8.
+{-
+*Main> link2pair "mailto:john@smith.co.uk\">John</a>"
+        ("John","john@smith.co.uk")
+        -}
 link2pair :: Link -> (Name, Email)
-link2pair = undefined
+link2pair l = ((dropUntil ">" (takeUntil "</a>" l)), dropUntil ":" (takeUntil "\"" l)) 
 
 
 -- 9.
 emailsFromHTML :: HTML -> [(Name,Email)]
-emailsFromHTML = undefined
+emailsFromHTML a = nub (map link2pair (takeEmails (linksFromHTML a)))
 
 testEmailsFromHTML :: Bool
 testEmailsFromHTML  =  emailsFromHTML testHTML == testAddrBook
@@ -157,12 +168,11 @@ testEmailsFromHTML  =  emailsFromHTML testHTML == testAddrBook
 
 -- 10.
 findEmail :: Name -> [(Name, Email)] -> [(Name, Email)]
-findEmail = undefined
-
+findEmail name ls= [(a, b) | (a, b) <- ls, contains a name]
 
 -- 11.
 emailsByNameFromHTML :: HTML -> Name -> [(Name,Email)]
-emailsByNameFromHTML = undefined
+emailsByNameFromHTML html name = findEmail name (emailsFromHTML html)
 
 
 -- Optional Material
@@ -190,4 +200,4 @@ emailsByMyCriteriaFromHTML = undefined
 -- 15
 ppAddrBook :: [(Name, Email)] -> String
 ppAddrBook addr = unlines [ name ++ ": " ++ email | (name,email) <- addr ]
--}
+
