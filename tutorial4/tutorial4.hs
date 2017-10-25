@@ -179,11 +179,14 @@ emailsByNameFromHTML html name = findEmail name (emailsFromHTML html)
 
 -- 12.
 hasInitials :: String -> Name -> Bool
-hasInitials = undefined
+hasInitials init name = and (zipWith (\x y -> x == head y) init (split " " name))
 
 -- 13.
 emailsByMatchFromHTML :: (Name -> Bool) -> HTML -> [(Name, Email)]
-emailsByMatchFromHTML = undefined
+emailsByMatchFromHTML crite html = [if crite name1 then head (findEmail name1 nameAndEmail) else [("","")]| name1 <- nameList]
+  where nameAndEmail = emailsFromHTML html
+        nameList = [name | (name, email) <- nameAndEmail]
+
 
 emailsByInitialsFromHTML :: String -> HTML -> [(Name, Email)]
 emailsByInitialsFromHTML = undefined
