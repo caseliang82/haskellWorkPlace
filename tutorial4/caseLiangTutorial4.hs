@@ -89,8 +89,6 @@ prop_prefix_neg str n = sameString str substr || (not $ prefix str substr)
   where substr = take n str
 
 -- 3.
--- contains "abcd" "ac"
--- True
 contains :: String -> String -> Bool
 contains _ [] = True
 contains [] _ = False
@@ -148,7 +146,7 @@ testLinksFromHTML  =  linksFromHTML testHTML == testLinks
 
 -- 7.
 takeEmails :: [Link] -> [Link]
-takeEmails ls = [l | l <- ls, contains l "mailto"]
+takeEmails ls = [l | l <- ls, contains l "@"]
 
 
 -- 8.
@@ -156,11 +154,9 @@ takeEmails ls = [l | l <- ls, contains l "mailto"]
 *Main> link2pair "mailto:john@smith.co.uk\">John</a>"
         ("John","john@smith.co.uk")
         -}
--- didnt write the error case
 link2pair :: Link -> (Name, Email)
-link2pair l
-  |contains l "mailto:" = ((dropUntil "\">" (takeUntil "</a>" l)), dropUntil "mailto:" (takeUntil "\"" l)) 
-  |otherwise = error ("link2pair: not a mail address")
+link2pair l = ((dropUntil ">" (takeUntil "</a>" l)), dropUntil ":" (takeUntil "\"" l)) 
+
 
 -- 9.
 emailsFromHTML :: HTML -> [(Name,Email)]
