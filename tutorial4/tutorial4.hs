@@ -183,24 +183,38 @@ hasInitials init name = and (zipWith (\x y -> x == head y) init (split " " name)
 
 -- 13.
 emailsByMatchFromHTML :: (Name -> Bool) -> HTML -> [(Name, Email)]
-emailsByMatchFromHTML crite html = [if crite name1 then head (findEmail name1 nameAndEmail) else [("","")]| name1 <- nameList]
+emailsByMatchFromHTML crite html = init [if crite name1 then head (findEmail name1 nameAndEmail) else ("","")| name1 <- nameList]
   where nameAndEmail = emailsFromHTML html
         nameList = [name | (name, email) <- nameAndEmail]
 
 
 emailsByInitialsFromHTML :: String -> HTML -> [(Name, Email)]
-emailsByInitialsFromHTML = undefined
+emailsByInitialsFromHTML ini html = init [if hasInitials ini name1 then head (findEmail name1 nameAndEmail) else ("","")| name1 <- nameList]
+ where nameAndEmail = emailsFromHTML html
+       nameList = [name | (name, email) <- nameAndEmail]
 
 -- 14.
 
 -- If your criteria use parameters (like hasInitials), change the type signature.
-myCriteria :: Name -> Bool
-myCriteria = undefined
+-- myCriteria return True when the name contains the substr.
+-- e.g. myCriteria "Fehrenbach, Stefan" "bach" returns True
+myCriteria :: Name -> String -> Bool
+myCriteria name substr = contains name substr
 
-emailsByMyCriteriaFromHTML :: HTML -> [(Name, Email)]
-emailsByMyCriteriaFromHTML = undefined
+emailsByMyCriteriaFromHTML :: String -> HTML -> [(Name, Email)]
+emailsByMyCriteriaFromHTML substr html = init [if myCriteria name1 substr then head (findEmail name1 nameAndEmail) else ("","")| name1 <- nameList]
+ where nameAndEmail = emailsFromHTML html
+       nameList = [name | (name, email) <- nameAndEmail]
 
 -- 15
+-- ori: ppAddrBook addr = unlines [ name ++ ": " ++ email | (name,email) <- addr ]
 ppAddrBook :: [(Name, Email)] -> String
-ppAddrBook addr = unlines [ name ++ ": " ++ email | (name,email) <- addr ]
+ppAddrBook [] = []
+ppAddrBook all@((name,email):xs) | contains name "," = name ++ (concat$replicate ((leng all) - length name) " ") ++ email ++ ppAddrBook xs
+                                 | otherwise         = surname name ++ ", " ++ takeUntil (surname name) name ++ (concat$replicate ((leng all) - length name) " ") ++ email ++ ppAddrBook xs
+  where leng addr = (maximum (map length (map fst addr))) + 5
+        surname name = last (split " " name)
+
+--ppAddrBook' :: [(Name, Email)] -> String
+--ppAddrBook' addr = unlines (ppAddrBook addr)
 
