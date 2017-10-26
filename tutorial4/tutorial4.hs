@@ -55,7 +55,7 @@ emailsFromURL :: URL -> IO ()
 emailsFromURL url =
   do html <- getURL url
      let emails = (emailsFromHTML html)
-     putStr (ppAddrBook emails)
+     putStr (ppAddrBook' emails)
 {-}
 emailsByNameFromURL :: URL -> Name -> IO ()
 emailsByNameFromURL url name =
@@ -208,13 +208,13 @@ emailsByMyCriteriaFromHTML substr html = init [if myCriteria name1 substr then h
 
 -- 15
 -- ori: ppAddrBook addr = unlines [ name ++ ": " ++ email | (name,email) <- addr ]
-ppAddrBook :: [(Name, Email)] -> String
+ppAddrBook :: [(Name, Email)] -> [String]
 ppAddrBook [] = []
-ppAddrBook all@((name,email):xs) | contains name "," = name ++ (concat$replicate ((leng all) - length name) " ") ++ email ++ ppAddrBook xs
-                                 | otherwise         = surname name ++ ", " ++ takeUntil (surname name) name ++ (concat$replicate ((leng all) - length name) " ") ++ email ++ ppAddrBook xs
+ppAddrBook all@((name,email):xs) | contains name "," = (name ++ (concat$replicate ((leng all) - length name) " ") ++ email) : ppAddrBook xs
+                                 | otherwise         = (surname name ++ ", " ++ takeUntil (surname name) name ++ (concat$replicate ((leng all) - length name) " ") ++ email) : ppAddrBook xs
   where leng addr = (maximum (map length (map fst addr))) + 5
         surname name = last (split " " name)
 
---ppAddrBook' :: [(Name, Email)] -> String
---ppAddrBook' addr = unlines (ppAddrBook addr)
+ppAddrBook' :: [(Name, Email)] -> String
+ppAddrBook' addr = unlines (ppAddrBook addr)
 
