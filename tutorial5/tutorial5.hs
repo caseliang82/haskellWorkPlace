@@ -71,6 +71,8 @@ data Prop = Var Name
           | Not Prop
           | Prop :|: Prop
           | Prop :&: Prop
+          | Prop :->: Prop
+          | Prop :<->: Prop
           deriving (Eq, Ord)
 
 type Names = [Name]
@@ -87,6 +89,8 @@ showProp (T)            =  "T"
 showProp (Not p)        =  "(~" ++ showProp p ++ ")"
 showProp (p :|: q)      =  "(" ++ showProp p ++ "|" ++ showProp q ++ ")"
 showProp (p :&: q)      =  "(" ++ showProp p ++ "&" ++ showProp q ++ ")"
+showProp (p :->: q)     =  "(" ++ showProp p ++ "->" ++ showProp q ++ ")"
+showProp (p :<->: q)     =  "(" ++ showProp p ++ "<->" ++ showProp q ++ ")"
 
 -- evaluates a proposition in a given environment
 eval :: Env -> Prop -> Bool
@@ -96,6 +100,8 @@ eval e (T)            =  True
 eval e (Not p)        =  not (eval e p)
 eval e (p :|: q)      =  eval e p || eval e q
 eval e (p :&: q)      =  eval e p && eval e q
+eval e (p :->: q)     =  eval e (Not p) || eval e q
+eval e (p :<->: q)    =  (eval e p == eval e q) && (eval e (Not p) == eval e (Not q))
 
 -- retrieves the names of variables from a proposition - 
 --  NOTE: variable names in the result must be unique
@@ -106,6 +112,8 @@ names (T)            =  []
 names (Not p)        =  names p
 names (p :|: q)      =  nub (names p ++ names q)
 names (p :&: q)      =  nub (names p ++ names q)
+names (p :->: q)     =  nub (names p ++ names q)
+names (p :<->: q)    =  nub (names p ++ names q)
 
 -- creates all possible truth assignments for a set of variables
 envs :: Names -> [Env]
@@ -117,19 +125,26 @@ envs (x:xs)  =  [ (x,False):e | e <- envs xs ] ++
 satisfiable :: Prop -> Bool
 satisfiable p  =  or [ eval e p | e <- envs (names p) ]
 
+--variables in a propsition
+variabless :: Prop -> Names
+variabless (Var x)        =  [x]
+variabless (F)            =  ["f"]
+variabless (T)            =  ["t"]
+variabless (Not p)        =  variabless p
+variabless (p :|: q)      =  nub (variabless p ++ variabless q)
+variabless (p :&: q)      =  nub (variabless p ++ variabless q)
+variabless (p :->: q)     =  nub (variabless p ++ variabless q)
+variabless (p :<->: q)    =  nub (variabless p ++ variabless q)
+
 
 -- Exercises ------------------------------------------------------------
 
 -- 4.
-p0 = Var "P"
+p0 = Var "P" :|: Var "Q"
 p1 = (Var "P" :|: Var "Q") :&: (Var "P" :&: Var "Q")
 p2 = (Var "P" :|: Var "Q") :&: ((Not(Var "P")) :&: (Not(Var "Q"))) 
 p3 = ((Var "P" :&: (Var "Q" :|: Var "R")) :&: ((Not (Var "P") :|: Not (Var "Q")) :&: (Not (Var "P") :|: Not (Var "R"))))
-pa = Var "P" :&: Not(Var "P")
-pb = Var "P" :|: Not(Var "P")
-pc = T :&: T
-pd = T
-pe = Not(p2)
+
 
 -- 5. 
 tautology :: Prop -> Bool
@@ -143,20 +158,24 @@ prop_taut2 p = (not (satisfiable p)) || (not (tautology (Not p)))
 
 
 -- 6.
-p4 = undefined
-p5 = undefined
-p6 = undefined 
-
-
+p4 = ((Var "P" :->:Var "Q") :&: (Var "P" :<->:Var "Q"))
+p5 = ((Var "P" :->: Var "Q") :&: (Var "P" :&:(Not (Var "Q"))))
+p6 = ((Var "P" :<->: Var "Q") :&: ((Var "P" :&: (Not (Var "Q"))) :|:((Not (Var "P")) :&: Var "Q")))
+p11 = (Var "Q" :->: (Not F))
+p12 = Var "Q"
 -- 7.
 equivalent :: Prop -> Prop -> Bool
-equivalent = undefined
+equivalent p1 p2 =  (and$zipWith (\x y -> eval x p1 == eval y p2) (envs (names p1)) (envs (names p2))) &&
+ (names p1 == names p2)
 
 equivalent' :: Prop -> Prop -> Bool
-equivalent' = undefined
+equivalent' T F = False
+equivalent' F T = False
+equivalent' p1 p2 = (tautology (p1 :|: (Not p2)) && (not (satisfiable ((Not p1) :&: p2)))) {-&&
+ (variabless p1 == variabless p2) -}
 
 prop_equivalent :: Prop -> Prop -> Bool
-prop_equivalent = undefined
+prop_equivalent p1 p2 = (equivalent p1 p2) == (equivalent' p1 p2)
 
 
 -- 8.
@@ -181,8 +200,8 @@ prop_NNF1 :: Prop -> Bool
 prop_NNF1 p  =  isNNF (toNNF p)
 
 -- check if result of toNNF is equivalent to its input
-prop_NNF2 :: Prop -> Bool
-prop_NNF2 p  =  equivalent p (toNNF p)
+--prop_NNF2 :: Prop -> Bool
+--prop_NNF2 p  =  equivalent p (toNNF p)
 
 
 -- 11.
@@ -215,8 +234,8 @@ toCNF :: Prop -> Prop
 toCNF p  =  listsToCNF (toCNFList p)
 
 -- check if result of toCNF is equivalent to its input
-prop_CNF :: Prop -> Bool
-prop_CNF p  =  equivalent p (toCNF p)
+--prop_CNF :: Prop -> Bool
+--prop_CNF p  =  equivalent p (toCNF p)
 
 
 
@@ -234,8 +253,8 @@ instance Arbitrary Prop where
                                        , liftM Not subform
                                        , liftM2 (:|:) subform subform
                                        , liftM2 (:&:) subform subform
-                                     --  , liftM2 (:->:) subform subform
-                                     --  , liftM2 (:<->:) subform' subform'
+                                       , liftM2 (:->:) subform subform
+                                       , liftM2 (:<->:) subform' subform'
                                        ]
                  where
                    atom = oneof [liftM Var (elements ["P", "Q", "R", "S"]),
