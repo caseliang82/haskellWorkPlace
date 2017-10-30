@@ -1,3 +1,4 @@
+{-
 data Shape = Circle Float Float Float | Rectangle Float Float Float Float
     deriving (Show)
 
@@ -11,3 +12,9 @@ data Person = Person { firstName :: String
                      } deriving (Eq, Show, Read)
 
 type AssocList k v = [(k, v)]
+-}
+
+
+module List (Set) where
+import Test.QuickCheck 
+type Set a = [a]

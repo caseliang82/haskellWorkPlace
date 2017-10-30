@@ -1,3 +1,3 @@
+# greeting from casey
 # haskellWorkPlace
-# haskellWorkPlace
-# hello world casey
+# created in September 2017
