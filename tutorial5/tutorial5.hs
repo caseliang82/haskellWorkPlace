@@ -171,16 +171,34 @@ equivalent p1 p2 =  (and$zipWith (\x y -> eval x p1 == eval y p2) (envs (names p
 equivalent' :: Prop -> Prop -> Bool
 equivalent' T F = False
 equivalent' F T = False
-equivalent' p1 p2 = (tautology (p1 :|: (Not p2)) && (not (satisfiable ((Not p1) :&: p2)))) {-&&
- (variabless p1 == variabless p2) -}
+equivalent' p1 p2 = (tautology (p1 :|: (Not p2)) && (not (satisfiable ((Not p1) :&: p2)))) &&
+ (variabless p1 == variabless p2) 
 
 prop_equivalent :: Prop -> Prop -> Bool
 prop_equivalent p1 p2 = (equivalent p1 p2) == (equivalent' p1 p2)
 
 
 -- 8.
+{-
+variabless :: Prop -> Names
+variabless (Var x)        =  [x]
+variabless (F)            =  ["f"]
+variabless (T)            =  ["t"]
+variabless (Not p)        =  variabless p
+variabless (p :|: q)      =  nub (variabless p ++ variabless q)
+variabless (p :&: q)      =  nub (variabless p ++ variabless q)
+variabless (p :->: q)     =  nub (variabless p ++ variabless q)
+variabless (p :<->: q)    =  nub (variabless p ++ variabless q)
+-}
 subformulas :: Prop -> [Prop]
-subformulas = undefined
+subformulas (Var x)       = [(Var x)]
+subformulas (F)           = [F]
+subformulas (T)           = [T]
+subformulas (Not p)       = [Not p] ++ (subformulas p)
+subformulas (p :|: q)     = [p :|: q] ++ (nub (subformulas p ++ subformulas q))
+subformulas (p :&: q)     = [p :&: q] ++ (nub (subformulas p ++ subformulas q))
+subformulas (p :->: q)    = [p :->: q] ++ (nub (subformulas p ++ subformulas q))
+subformulas (p :<->: q)   = [p :<->: q] ++ (nub (subformulas p ++ subformulas q))
 
 
 -- Optional Material
