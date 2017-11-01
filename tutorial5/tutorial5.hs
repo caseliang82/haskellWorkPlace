@@ -163,6 +163,8 @@ p5 = ((Var "P" :->: Var "Q") :&: (Var "P" :&:(Not (Var "Q"))))
 p6 = ((Var "P" :<->: Var "Q") :&: ((Var "P" :&: (Not (Var "Q"))) :|:((Not (Var "P")) :&: Var "Q")))
 p11 = (Var "Q" :->: (Not F))
 p12 = Var "Q"
+p7 = (Var "P" :<->: Var "Q")
+p8 = ((Not (Var "P") :&: (Var "Q")) :&: (Not (Var "Q") :&: (Var "P")))
 -- 7.
 equivalent :: Prop -> Prop -> Bool
 equivalent p1 p2 =  (and$zipWith (\x y -> eval x p1 == eval y p2) (envs (names p1)) (envs (names p2))) &&
@@ -203,23 +205,36 @@ subformulas (p :<->: q)   = [p :<->: q] ++ (nub (subformulas p ++ subformulas q)
 
 -- Optional Material
 
+
 -- 9.
 -- check for negation normal form
 isNNF :: Prop -> Bool
-isNNF = undefined
+isNNF p = and [x `elem` ("|&()-tfTF" ++ (showProp p))| x <- (showProp p)]
+
 
 -- 10.
 -- convert to negation normal form
 toNNF :: Prop -> Prop
-toNNF = undefined
+toNNF (Var x)             = (Var x)
+toNNF (F)                 = F
+toNNF (T)                 = T
+toNNF (Not p)             = (Not (toNNF p))
+toNNF (Not (p :&: q))     = (toNNF (Not p)) :|: (toNNF (Not q))
+toNNF (Not (p :|: q))     = (toNNF (Not p)) :&: (toNNF (Not q))
+toNNF (p :|: q)           = (toNNF p) :|: (toNNF q)
+toNNF (p :&: q)           = (toNNF p) :&: (toNNF q)
+toNNF (p :->: q)          = (toNNF (Not p)) :|: (toNNF q)
+toNNF (p :<->: q)         = (toNNF (p :->: q)) :&: (toNNF (q :->: p))
+toNNF (Not (Not p))       = toNNF p 
+
 
 -- check if result of toNNF is in neg. normal form
 prop_NNF1 :: Prop -> Bool
 prop_NNF1 p  =  isNNF (toNNF p)
 
 -- check if result of toNNF is equivalent to its input
---prop_NNF2 :: Prop -> Bool
---prop_NNF2 p  =  equivalent p (toNNF p)
+prop_NNF2 :: Prop -> Bool
+prop_NNF2 p  =  equivalent p (toNNF p)
 
 
 -- 11.
@@ -336,3 +351,4 @@ lookUp :: Eq a => a -> [(a,b)] -> b
 lookUp z xys  =  the [ y | (x,y) <- xys, x == z ]
     where the [x]  =  x
           the _    =  error "eval: lookUp: variable missing or not unique"
+
