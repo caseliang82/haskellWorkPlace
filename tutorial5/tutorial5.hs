@@ -101,7 +101,7 @@ eval e (Not p)        =  not (eval e p)
 eval e (p :|: q)      =  eval e p || eval e q
 eval e (p :&: q)      =  eval e p && eval e q
 eval e (p :->: q)     =  eval e (Not p) || eval e q
-eval e (p :<->: q)    =  (eval e p == eval e q) && (eval e (Not p) == eval e (Not q))
+eval e (p :<->: q)    =  eval e p == eval e q
 
 -- retrieves the names of variables from a proposition - 
 --  NOTE: variable names in the result must be unique
@@ -175,6 +175,8 @@ equivalent' T F = False
 equivalent' F T = False
 equivalent' p1 p2 = (tautology (p1 :|: (Not p2)) && (not (satisfiable ((Not p1) :&: p2)))) &&
  (variabless p1 == variabless p2) 
+--shorter solution:
+--equivalent' p q = tautology (p :<->: q)
 
 prop_equivalent :: Prop -> Prop -> Bool
 prop_equivalent p1 p2 = (equivalent p1 p2) == (equivalent' p1 p2)
@@ -193,14 +195,12 @@ variabless (p :->: q)     =  nub (variabless p ++ variabless q)
 variabless (p :<->: q)    =  nub (variabless p ++ variabless q)
 -}
 subformulas :: Prop -> [Prop]
-subformulas (Var x)       = [(Var x)]
-subformulas (F)           = [F]
-subformulas (T)           = [T]
 subformulas (Not p)       = [Not p] ++ (subformulas p)
 subformulas (p :|: q)     = [p :|: q] ++ (nub (subformulas p ++ subformulas q))
 subformulas (p :&: q)     = [p :&: q] ++ (nub (subformulas p ++ subformulas q))
 subformulas (p :->: q)    = [p :->: q] ++ (nub (subformulas p ++ subformulas q))
 subformulas (p :<->: q)   = [p :<->: q] ++ (nub (subformulas p ++ subformulas q))
+subformulas (p)           = [p]
 
 
 -- Optional Material
@@ -240,13 +240,26 @@ prop_NNF2 p  =  equivalent p (toNNF p)
 -- 11.
 -- check whether a formula is in conj. normal form
 isCNF :: Prop -> Bool
-isCNF = undefined
+isCNF (Var p)             = True
+isCNF (T)                 = True
+isCNF (F)                 = True
+isCNF (Not p)             = False
+isCNF (p :|: q)           = False
+isCNF (p :&: q)           = (isNNF p) && ((isCNF q) || (isNNF q))
+isCNF (p :->: q)          = False
+isCNF (p :<->: q)         = False
 
 
 -- 13.
+-- tansform a list of Props into a (NNF) form
+listToNNF :: [Prop] -> Prop
+listToNNF [] = F
+listToNNF (p:[]) = p
+listToNNF (p:q:ps) = (:|:) ((:|:) p q) (listToNNF ps)
 -- transform a list of lists into a (CNF) formula
+
 listsToCNF :: [[Prop]] -> Prop
-listsToCNF = undefined
+listsToCNF ps = undefined 
 
 
 -- 14.
@@ -261,7 +274,7 @@ toCNFList :: Prop -> [[Prop]]
 toCNFList = undefined
 
 
-
+{-
 -- convert to conjunctive normal form
 toCNF :: Prop -> Prop
 toCNF p  =  listsToCNF (toCNFList p)
@@ -272,7 +285,7 @@ toCNF p  =  listsToCNF (toCNFList p)
 
 
 
-
+-}
 -- For QuickCheck --------------------------------------------------------
 
 instance Show Prop where
