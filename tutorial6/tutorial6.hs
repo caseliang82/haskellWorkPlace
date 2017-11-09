@@ -28,16 +28,18 @@ main = display (thirtytwo 3)
 
 -- 1a. split
 split :: Command -> [Command]
-split (c :#: Sit) = [c]
-split (Sit :#: cs) = (split cs)
+split Sit         = []
 split (c :#: cs)  = (split c) ++ (split cs)
-split c = [c]
+split c           = [c]
 
 
 -- 1b. join
 join :: [Command] -> Command
 join (c:[]) = c
 join (c:cs) = c :#: (join cs)
+
+-- join [] = Sit
+-- join xs = foldrl (:#:) xs
 
 -- 1c. equivalent
 equivalent :: Command -> Command -> Bool
@@ -58,6 +60,8 @@ copy :: Int -> Command -> Command
 copy 1 c = c
 copy n c = c :#: copy (n-1) c
 
+--copy count c = join$replicate count c
+
 -- 2b. pentagon
 pentagon :: Distance -> Command
 pentagon d = copy 5 (Go d :#: Turn 72.0)
@@ -66,7 +70,7 @@ pentagon d = copy 5 (Go d :#: Turn 72.0)
 polygon :: Distance -> Int -> Command
 polygon d ns = copy ns (Go d :#: Turn angle)
  where angle::Angle
-       angle = fromIntegral(360`div`ns)
+       angle =(360/ fromIntegral(ns))
 
 
 
@@ -74,6 +78,7 @@ polygon d ns = copy ns (Go d :#: Turn angle)
 -- spiral
 spiral :: Distance -> Int -> Distance -> Angle -> Command
 --spiral firstLen numS step turn 
+-- didnt check if f is negative : (
 spiral f 1 s a = (Go f :#: Turn a)
 spiral f n s a = (Go f :#: Turn a) :#: (spiral (f + s) (n - 1) s a)
 
