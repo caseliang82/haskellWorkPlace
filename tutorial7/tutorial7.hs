@@ -34,17 +34,25 @@ testDB = fromList [
  ("0042400212509", ("Universal deep-frying pan", "pc"))
  ]
 
-
+xs = [
+ ("0265090316581", ("The Macannihav'nmor Highland Single Malt", "75ml bottle")),
+ ("0903900739533", ("Bagpipes of Glory", "6-CD Box")),
+ ("9780201342758", ("Thompson - \"Haskell: The Craft of Functional Programming\"", "Book")),
+ ("0042400212509", ("Universal deep-frying pan", "pc"))
+ ]
 -- Exercise 1
 
+--longestProductLen :: [(Barcode, Item)] -> Int
 longestProductLen :: [(Barcode, Item)] -> Int
-longestProductLen = undefined
+longestProductLen xs = maximum $ map (\x -> length . fst $ snd x) xs 
 
 formatLine :: Int -> (Barcode, Item) -> String
-formatLine = undefined
+formatLine len (bco, (prod, uni)) = bco ++ "..." ++ prod ++ concat ( replicate (len - (length prod) + 3)  "."  ) ++ uni ++ "\n\n"
 
 showCatalogue :: Catalogue -> String
-showCatalogue = undefined
+showCatalogue cata = concat $ map (formatLine (longestProductLen catal)) catal
+  where 
+    catal = toList cata
      
 -- Exercise 2
 maybeToList :: Maybe a -> [a]
