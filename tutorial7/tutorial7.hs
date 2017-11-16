@@ -10,7 +10,7 @@ import System.Random
 
 -- Importing the keymap module
 
-import KeymapList
+import KeymapTree
 
 
 -- Type declarations
@@ -44,10 +44,11 @@ xs = [
 
 --longestProductLen :: [(Barcode, Item)] -> Int
 longestProductLen :: [(Barcode, Item)] -> Int
-longestProductLen xs = maximum $ map (\x -> length . fst $ snd x) xs 
+longestProductLen = maximum . map (length . fst . snd ) 
 
 formatLine :: Int -> (Barcode, Item) -> String
-formatLine len (bco, (prod, uni)) = bco ++ "..." ++ prod ++ concat ( replicate (len - (length prod) + 3)  "."  ) ++ uni ++ "\n\n"
+formatLine len (bco, (prod, uni)) = bco ++ "..." ++ prod ++ concat ( replicate (len - (length prod) + 3)  "."  ) ++
+                                    uni ++ "\n\n"
 
 showCatalogue :: Catalogue -> String
 showCatalogue cata = concat $ map (formatLine (longestProductLen catal)) catal
@@ -56,18 +57,20 @@ showCatalogue cata = concat $ map (formatLine (longestProductLen catal)) catal
      
 -- Exercise 2
 maybeToList :: Maybe a -> [a]
-maybeToList = undefined
+maybeToList (Just a) = [a]
+maybeToList Nothing = []
 
 listToMaybe :: [a] -> Maybe a
-listToMaybe = undefined
+listToMaybe [] = Nothing
+listToMaybe (x:_) = Just x
 
 catMaybes :: [Maybe a] -> [a]
-catMaybes = undefined
-
+catMaybes ms = [a | (Just a) <- ms]
+--catMaybes ms = concat map maybeToList
 -- Exercise 3
 
 getItems :: [Barcode] -> Catalogue -> [Item]
-getItems = undefined
+getItems xs cat= catMaybes $ map (flip get cat) xs
 
 
 

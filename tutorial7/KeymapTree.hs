@@ -28,8 +28,8 @@ data Keymap k a = Leaf
 
 testTree :: Keymap Int Int
 testTree = Node 2 20 (Node 1 10 Leaf Leaf)
-                     (Node 3 30 Leaf 
-                               (Node 4 40 Leaf Leaf ))
+                     (Node 3 30 Leaf
+                                  (Node 4 40 Leaf Leaf ))
 
 -- Exercise 6
 
@@ -38,27 +38,35 @@ size Leaf = 0
 size (Node _ _ left right) = 1 + size left + size right
 
 depth :: Ord k => Keymap k a -> Int
-depth = undefined
+depth Leaf = 0
+depth (Node _ _ left right) = 1 + max (depth left) (depth right)
+
 
 -- Exercise 7
 
 toList :: Ord k => Keymap k a -> [(k,a)]
-toList = undefined
+toList Leaf = []
+toList (Node k a left right)   = toList left ++ [(k,a)] ++ toList right
 
--- Exercise 8
+-- Exercise 8 
 
 set :: Ord k => k -> a -> Keymap k a -> Keymap k a
 set key value = f
     where
       f Leaf = Node key value Leaf Leaf
-      f (Node k v left right) | key == k  = Node k value left right
-                              | key <= k  = undefined
-                              | otherwise = undefined
+      f (Node k v left right) | key == k  = Node key value left right
+                              | key <= k  = Node k v (f left) right
+                              | otherwise = Node k v left (f right)
 
 -- Exercise 9
 
 get :: Ord k => k -> Keymap k a -> Maybe a
-get = undefined
+get key = f
+    where
+     f Leaf = Nothing
+     f (Node k v left right) | k == key = Just v
+                             | key < k  = f left
+                             | key > k  = f right 
 
 prop_set_get :: Int -> Int -> Bool
 prop_set_get k v = get k (set k v testTree) == Just v
@@ -66,7 +74,7 @@ prop_set_get k v = get k (set k v testTree) == Just v
 -- Exercise 10
 
 fromList :: Ord k => [(k,a)] -> Keymap k a
-fromList = undefined
+fromList = foldr (uncurry(set)) Leaf
 
 
 prop_toList_fromList :: [Int] -> [Int] -> Bool
