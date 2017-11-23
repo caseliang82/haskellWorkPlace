@@ -84,7 +84,7 @@ readDB = do dbl <- readFile "database.csv"
             let db = fromList (map readLine $ lines dbl)
             putStrLn (size db >= 0 `seq` "Done")
             return db
-
+w
 readLine :: String -> (Barcode,Item)
 readLine str = (a,(c,b))
     where
